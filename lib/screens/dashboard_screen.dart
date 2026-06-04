@@ -106,7 +106,9 @@ class _DashboardScreenState extends State<DashboardScreen>
       final count = await dbService.getPresentCountToday(today);
       final students = await dbService.getAllStudents();
       final records = await dbService.getTodayAttendanceList(today);
-      final recent = List<Map<String, dynamic>>.from(records).reversed.take(4).toList();
+      final presentRecords = records.where((r) => r['status'] == 'Present').toList();
+      presentRecords.sort((a, b) => (b['time'] as String).compareTo(a['time'] as String));
+      final recent = presentRecords.take(4).toList();
 
       if (mounted) {
         setState(() {
