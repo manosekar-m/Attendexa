@@ -77,6 +77,62 @@ class _HistoryScreenState extends State<HistoryScreen>
     }
   }
 
+  Future<void> _toggleStatus(Map<String, dynamic> record) async {
+    final currentStatus = record['status'] as String;
+    final rfid = record['rfid'] as String?;
+    if (rfid == null) return;
+    
+    final newStatus = currentStatus == 'Present' ? 'Absent' : 'Present';
+    final actionColor = newStatus == 'Absent' ? AppColors.rose : AppColors.mint;
+    
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: Theme.of(context).brightness == Brightness.dark 
+            ? AppColors.darkSurface 
+            : AppColors.lightSurface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Text(
+          'Mark as $newStatus?',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to change the attendance status for ${record['name']} to $newStatus?',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: actionColor,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 0,
+            ),
+            child: Text('Confirm'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      final dbService = context.read<DatabaseService>();
+      final dateStr = DateFormat('yyyy-MM-dd').format(_selectedDate);
+      await dbService.toggleAttendance(rfid, dateStr, currentStatus);
+      if (!mounted) return;
+      _loadHistory(); // Reload history after toggling
+    }
+  }
+
   List<Map<String, dynamic>> get _filteredRecords {
     if (_selectedStdSec == null) return _records;
     return _records.where((r) => r['stdSec'] == _selectedStdSec).toList();
@@ -355,6 +411,9 @@ class _HistoryScreenState extends State<HistoryScreen>
                                       child: Padding(
                                         padding:
                                             const EdgeInsets.only(bottom: 12),
+                                      child: InkWell(
+                                        onTap: () => _toggleStatus(record),
+                                        borderRadius: BorderRadius.circular(20),
                                         child: Container(
                                           decoration: BoxDecoration(
                                             color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
@@ -507,6 +566,7 @@ class _HistoryScreenState extends State<HistoryScreen>
                                             ],
                                           ),
                                         ),
+                                      ),
                                       ),
                                     ),
                                   );

@@ -110,6 +110,7 @@ class DatabaseService {
       
       if (att != null) {
         result.add({
+          'rfid': student.rfid,
           'name': student.name,
           'stdSec': student.stdSec,
           'date': att.date,
@@ -118,6 +119,7 @@ class DatabaseService {
         });
       } else {
         result.add({
+          'rfid': student.rfid,
           'name': student.name,
           'stdSec': student.stdSec,
           'date': date,
@@ -128,6 +130,32 @@ class DatabaseService {
     }
     
     return result;
+  }
+
+  Future<void> toggleAttendance(String rfid, String date, String currentStatus) async {
+    final aBox = await attendanceBox;
+    
+    if (currentStatus == 'Present') {
+      // Change to Absent -> Delete the record
+      final keysToDelete = aBox.keys.where((k) {
+        final att = aBox.get(k);
+        return att != null && att.rfid == rfid && att.date == date;
+      }).toList();
+      
+      for (var k in keysToDelete) {
+        await aBox.delete(k);
+      }
+    } else {
+      // Change to Present -> Add the record
+      final time = DateFormat('HH:mm').format(DateTime.now());
+      final attendance = Attendance(
+        rfid: rfid,
+        date: date,
+        status: 'Present',
+        time: time,
+      );
+      await aBox.add(attendance);
+    }
   }
 
   Future<int> getPresentCountToday(String date) async {
