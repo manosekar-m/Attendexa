@@ -23,29 +23,9 @@
 - **File Handling:** `file_picker`, `excel`, `path_provider`
 - **UI & Icons:** Custom Glassmorphism, `font_awesome_flutter`
 
-## 🚀 Getting Started
+## 🚀 Status
 
-### Prerequisites
-- Flutter SDK installed on your machine.
-- An Android device with NFC capabilities (for testing NFC features).
-
-### Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/manosekar-m/Attendexa.git
-   cd Attendexa
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   flutter pub get
-   ```
-
-3. **Run the app:**
-   ```bash
-   flutter run
-   ```
+> **🚧 Work in Progress:** Attendexa is currently in active development. Features, UI elements, and data structures are subject to change. A full installation guide and release binaries will be provided once a stable version is reached.
 
 ## 📂 Project Structure
 
