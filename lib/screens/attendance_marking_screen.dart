@@ -87,6 +87,19 @@ class _AttendanceMarkingScreenState extends State<AttendanceMarkingScreen>
       return;
     }
 
+    if (!prefs.containsKey('geo_lat') || !prefs.containsKey('geo_lng')) {
+      if (mounted) {
+        setState(() {
+          _isGeoChecking = false;
+          _isGeoBlocked = true;
+          _isError = true;
+          _statusMessage = 'Update geotag location.\nClassroom location has not been set.';
+        });
+      }
+      _speak('Update geotag location. Classroom location has not been set.');
+      return;
+    }
+
     final classLat = prefs.getDouble('geo_lat') ?? 0.0;
     final classLng = prefs.getDouble('geo_lng') ?? 0.0;
     final allowedRadius = prefs.getDouble('geo_radius') ?? 100.0;
@@ -125,12 +138,19 @@ class _AttendanceMarkingScreenState extends State<AttendanceMarkingScreen>
       }
 
       // 3. Retrieve current position with a timeout
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 10),
-        ),
-      );
+      Position? position;
+      try {
+        position = await Geolocator.getLastKnownPosition();
+      } catch (_) {}
+      
+      if (position == null) {
+        position = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.medium,
+            timeLimit: Duration(seconds: 10),
+          ),
+        );
+      }
 
       // 4. Calculate distance to classroom location
       final distance = Geolocator.distanceBetween(
