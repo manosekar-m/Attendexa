@@ -115,26 +115,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Logo animation
-            AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                double opacity = Curves.easeIn.transform(
-                  (_controller.value / 0.5).clamp(0.0, 1.0),
-                );
-                return Opacity(
-                  opacity: opacity,
-                  child: Transform.scale(
-                    scale: 0.8 + (0.2 * opacity),
-                    child: Image.asset(
-                      'assets/images/logo.png',
-                      height: 120,
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 32),
+
             
             // Letter by letter animation
             AnimatedBuilder(
