@@ -230,6 +230,21 @@ class _AttendanceMarkingScreenState extends State<AttendanceMarkingScreen>
   }
 
   Future<void> _markManual() async {
+    // Block if geotag is not configured at all
+    final prefs = await SharedPreferences.getInstance();
+    final geoEnabled = prefs.getBool('geo_enabled') ?? false;
+    if (!geoEnabled) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: const Text('Geotag not configured. Please set up classroom location in Settings to mark attendance.'),
+          backgroundColor: AppColors.rose,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ));
+      }
+      return;
+    }
+
     if (_isGeoBlocked) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: const Text('Cannot mark attendance — outside classroom boundary.'),
